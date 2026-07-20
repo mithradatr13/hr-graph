@@ -12,34 +12,34 @@ import (
 
 func SetupRouter(taskHandler *handler.TaskHandler) *gin.Engine {
 	r := gin.Default()
-	
-	// اتصال میدلور مانیتورینگ پرومتئوس و ترسینگ لایو
+
+	// Attach Prometheus monitoring and live tracing middleware
 	r.Use(middleware.MetricsMiddleware())
 
-	// سرویس مستندات آنلاین Swagger UI به همراه فایل OpenAPI
+	// Serve online Swagger UI documentation alongside the OpenAPI spec file
 	r.StaticFile("/docs/openapi.yaml", "./docs/openapi.yaml")
 	r.GET("/docs", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css">
-				<script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
-			</head>
-			<body>
-				<div id="swagger-ui"></div>
-				<script>
-					SwaggerUIBundle({ url: '/docs/openapi.yaml', dom_id: '#swagger-ui' });
-				</script>
-			</body>
-			</html>
-		`))
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css">
+                <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+            </head>
+            <body>
+                <div id="swagger-ui"></div>
+                <script>
+                    SwaggerUIBundle({ url: '/docs/openapi.yaml', dom_id: '#swagger-ui' });
+                </script>
+            </body>
+            </html>
+        `))
 	})
 
-	// اندپوینت متریک‌های سیستم برای ابزار Prometheus
+	// System metrics endpoint for Prometheus scraping
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
-	// ثبت سیستم Profiling (pprof) جهت تحلیل پرفورمنس و بنچمارک لود تست
+	// Register Profiling system (pprof) for performance analysis and load testing benchmarks
 	pprofGroup := r.Group("/debug/pprof")
 	{
 		pprofGroup.GET("/", gin.WrapH(http.HandlerFunc(pprof.Index)))
@@ -49,14 +49,17 @@ func SetupRouter(taskHandler *handler.TaskHandler) *gin.Engine {
 		pprofGroup.GET("/trace", gin.WrapH(http.HandlerFunc(pprof.Trace)))
 	}
 
-	// مسیرهای اصلی CRUD اندپوینت سرویس مدیریت تسک‌ها
-	v1 := r.Group("/tasks")
+	// API v1 group and task resource routes
+	v1 := r.Group("/api/v1")
 	{
-		v1.POST("", taskHandler.Create)
-		v1.GET("", taskHandler.List)
-		v1.GET("/:id", taskHandler.GetByID)
-		v1.PUT("/:id", taskHandler.Update)
-		v1.DELETE("/:id", taskHandler.Delete)
+		tasks := v1.Group("/tasks")
+		{
+			tasks.POST("", taskHandler.Create)
+			tasks.GET("", taskHandler.List)
+			tasks.GET("/:id", taskHandler.GetByID)
+			tasks.PUT("/:id", taskHandler.Update)
+			tasks.DELETE("/:id", taskHandler.Delete)
+		}
 	}
 
 	return r
