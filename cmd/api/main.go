@@ -2,18 +2,15 @@ package main
 
 import (
 	"log/slog"
-	"time"
 
 	"task-manager/internal/domain"
 	"task-manager/internal/handler"
 	"task-manager/internal/middleware"
 	"task-manager/internal/repository"
-	"task-manager/internal/router"
 	"task-manager/internal/service"
 	"task-manager/pkg/cache"
 	"task-manager/pkg/config"
 	"task-manager/pkg/database"
-	"task-manager/pkg/logger"
 
 	"context"
 	"net/http"
@@ -26,6 +23,7 @@ import (
 	"task-manager/pkg/logger"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -77,6 +75,12 @@ func main() {
 			baseLogger.Error("Server failed to start", "error", err)
 			os.Exit(1)
 		}
+	}()
+
+	go func() {
+		mux := http.NewServeMux()
+		mux.Handle("/metrics", promhttp.Handler())
+		_ = http.ListenAndServe(":9090", mux)
 	}()
 
 	quit := make(chan os.Signal, 1)
