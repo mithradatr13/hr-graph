@@ -77,7 +77,7 @@ func TestTaskService_GetByID_Success(t *testing.T) {
 	mockRepo.On("GetByID", mock.Anything, int64(1)).Return(expectedTask, nil)
 	mockCache.On("Set", mock.Anything, expectedTask).Return(nil)
 
-	taskService := NewTaskService(mockRepo, mockCache)
+	taskService := NewTaskService(mockRepo, mockCache, nil)
 	task, err := taskService.GetTask(context.Background(), 1)
 
 	assert.NoError(t, err)
@@ -94,7 +94,7 @@ func TestTaskService_GetByID_NotFound(t *testing.T) {
 	mockCache.On("Get", mock.Anything, int64(99)).Return(nil, errors.New("cache miss"))
 	mockRepo.On("GetByID", mock.Anything, int64(99)).Return(nil, errors.New("not found"))
 
-	taskService := NewTaskService(mockRepo, mockCache)
+	taskService := NewTaskService(mockRepo, mockCache, nil)
 	task, err := taskService.GetTask(context.Background(), 99)
 
 	assert.Error(t, err)

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"log"
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -55,6 +55,6 @@ func MetricsMiddleware() gin.HandlerFunc {
 		HttpRequestsTotal.WithLabelValues(c.Request.Method, path, status).Inc()
 		HttpLatencyHistogram.WithLabelValues(c.Request.Method, path).Observe(latency)
 
-		log.Printf("[TraceID: %s] %s %s | Status: %s | Latency: %v seconds", traceID, c.Request.Method, path, status, latency)
+		slog.Info("HTTP request processed", "trace_id", traceID, "method", c.Request.Method, "path", path, "status", status, "latency", latency)
 	}
 }

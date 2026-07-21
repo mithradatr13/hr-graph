@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"time"
 
 	"task-manager/internal/domain"
@@ -13,28 +13,41 @@ import (
 	"task-manager/pkg/cache"
 	"task-manager/pkg/config"
 	"task-manager/pkg/database"
+	"task-manager/pkg/logger"
+
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"task-manager/internal/router"
+	"task-manager/pkg/logger"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 func main() {
-	log.Println("running Task Manager Service...")
+	slog.Info("🚀 Starting Task Manager Service...")
 
 	cfg := config.Load()
 
 	db, err := database.NewPostgresConnection(cfg)
 	if err != nil {
-		log.Fatalf("❌ Connection to PostgreSQL failed: %v", err)
+		slog.Error("❌ Failed to connect to PostgreSQL", "error", err)
+		return
 	}
 	defer db.Close()
 
 	if err := database.Migrate(db); err != nil {
-		log.Fatalf("❌ Failed to create database tables: %v", err)
+		slog.Error("❌ Failed to create database tables: %v", err)
+		return
 	}
 
 	rdb, err := cache.NewRedisClient(cfg)
 	if err != nil {
-		log.Printf("⚠️ Warning: Failed to connect to Redis. System will operate without caching: %v", err)
+		slog.Warn("⚠️ Warning: Failed to connect to Redis. System will operate without caching: %v", err)
 	}
 
 	repo := repository.NewPostgresTaskRepository(db)
@@ -44,7 +57,8 @@ func main() {
 		taskCache = repository.NewRedisTaskCache(rdb, 10*time.Minute)
 	}
 
-	svc := service.NewTaskService(repo, taskCache)
+	baseLogger := logger.InitLogger()
+	svc := service.NewTaskService(repo, taskCache, baseLogger)
 	taskHandler := handler.NewTaskHandler(svc)
 
 	prometheus.MustRegister(service.TasksCountGauge)
@@ -52,8 +66,30 @@ func main() {
 
 	r := router.SetupRouter(taskHandler)
 
-	log.Printf("🛰️ Service is running on port :%s.", cfg.ServerPort)
-	if err := r.Run(":" + cfg.ServerPort); err != nil {
-		log.Fatalf("❌ Failed to run server: %v", err)
+	srv := &http.Server{
+		Addr:    ":8080",
+		Handler: r,
 	}
+
+	go func() {
+		baseLogger.Info("Starting server", "address", srv.Addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			baseLogger.Error("Server failed to start", "error", err)
+			os.Exit(1)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	baseLogger.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		baseLogger.Error("Server forced to shutdown", "error", err)
+	}
+
+	baseLogger.Info("Server exited properly")
 }

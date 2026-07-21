@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"log/slog"
 	"task-manager/pkg/config"
 	"time"
 
@@ -25,7 +25,7 @@ func NewPostgresConnection(cfg *config.Config) (*sql.DB, error) {
 		if err == nil {
 			break
 		}
-		log.Println("try to access database failed, retrying in 2 seconds...")
+		slog.Info("try to access database failed, retrying in 2 seconds...")
 		time.Sleep(2 * time.Second)
 	}
 
