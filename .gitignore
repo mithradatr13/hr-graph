@@ -1,0 +1,17 @@
+# Ignore log files
+*.log
+logs/
+
+# Ignore temporary and editor files
+*.tmp
+*.swp
+*~
+.DS_Store
+.idea/
+.vscode/
+
+# Ignore build artifacts
+build/
+dist/
+tmp/
+*.out
