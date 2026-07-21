@@ -13,7 +13,7 @@ var (
 	HttpRequestsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "requests_total",
-			Help: "تعداد کل درخواست‌های پردازش شده توسط سرویس HTTP",
+			Help: "Total number of HTTP requests processed by the service",
 		},
 		[]string{"method", "endpoint", "status"},
 	)
@@ -21,7 +21,7 @@ var (
 	HttpLatencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "request_latency_histogram",
-			Help:    "میزان تاخیر درخواست‌ها بر حسب ثانیه",
+			Help:    "Latency of HTTP requests in seconds",
 			Buckets: prometheus.DefBuckets,
 		},
 		[]string{"method", "endpoint"},
@@ -41,7 +41,6 @@ func MetricsMiddleware() gin.HandlerFunc {
 			path = c.Request.URL.Path
 		}
 
-		// مکانیزم Tracing ساده: تزریق شناسه یکتا به هدر پاسخ برای رهگیری عملیات کلاینت
 		traceID := c.GetHeader("X-Trace-ID")
 		if traceID == "" {
 			traceID = strconv.FormatInt(time.Now().UnixNano(), 16)
@@ -55,7 +54,7 @@ func MetricsMiddleware() gin.HandlerFunc {
 
 		HttpRequestsTotal.WithLabelValues(c.Request.Method, path, status).Inc()
 		HttpLatencyHistogram.WithLabelValues(c.Request.Method, path).Observe(latency)
-		
-		log.Printf("[TraceID: %s] %s %s | وضعیت: %s | تاخیر: %v ثانیه", traceID, c.Request.Method, path, status, latency)
+
+		log.Printf("[TraceID: %s] %s %s | Status: %s | Latency: %v seconds", traceID, c.Request.Method, path, status, latency)
 	}
 }

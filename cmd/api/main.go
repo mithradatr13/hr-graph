@@ -18,29 +18,25 @@ import (
 )
 
 func main() {
-	log.Println("🚀 در حال راه‌اندازی میکروسرویس مدیریت تسک...")
+	log.Println("running Task Manager Service...")
 
 	cfg := config.Load()
 
-	// ۲. اتصال لایه دیتابیس پایدار Postgres
 	db, err := database.NewPostgresConnection(cfg)
 	if err != nil {
-		log.Fatalf("❌ اتصال به PostgreSQL با خطا مواجه شد: %v", err)
+		log.Fatalf("❌ Connection to PostgreSQL failed: %v", err)
 	}
 	defer db.Close()
 
-	// اجرای خودکار مهاجرت دیتابیس برای ساخت تیبل‌ها
 	if err := database.Migrate(db); err != nil {
-		log.Fatalf("❌ ایجاد جدول دیتابیس ناموفق بود: %v", err)
+		log.Fatalf("❌ Failed to create database tables: %v", err)
 	}
 
-	// ۳. اتصال کلاینت حافظه موقت Redis
 	rdb, err := cache.NewRedisClient(cfg)
 	if err != nil {
-		log.Printf("⚠️ هشدار: اتصال به Redis برقرار نشد. سیستم بدون کش ادامه می‌دهد: %v", err)
+		log.Printf("⚠️ Warning: Failed to connect to Redis. System will operate without caching: %v", err)
 	}
 
-	// ۴. تزریق وابستگی‌ها (Dependency Injection)
 	repo := repository.NewPostgresTaskRepository(db)
 
 	var taskCache domain.TaskCache = nil
@@ -51,15 +47,13 @@ func main() {
 	svc := service.NewTaskService(repo, taskCache)
 	taskHandler := handler.NewTaskHandler(svc)
 
-	// ثبت متریک‌های سفارشی در سیستم Prometheus
 	prometheus.MustRegister(service.TasksCountGauge)
 	middleware.RegisterMetrics()
 
-	// ۵. مقداردهی روتر و راه‌اندازی پورت سرور
 	r := router.SetupRouter(taskHandler)
 
-	log.Printf("🛰️ سرویس با موفقیت روی پورت :%s در دسترس قرار گرفت.", cfg.ServerPort)
+	log.Printf("🛰️ Service is running on port :%s.", cfg.ServerPort)
 	if err := r.Run(":" + cfg.ServerPort); err != nil {
-		log.Fatalf("❌ اجرای سرور با شکست مواجه شد: %v", err)
+		log.Fatalf("❌ Failed to run server: %v", err)
 	}
 }

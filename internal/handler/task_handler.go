@@ -46,13 +46,13 @@ func (h *TaskHandler) Create(c *gin.Context) {
 func (h *TaskHandler) GetByID(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "فرمت شناسه ارسالی نامعتبر است"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
 
 	task, err := h.service.GetTask(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "تسک مورد نظر یافت نشد"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *TaskHandler) GetByID(c *gin.Context) {
 func (h *TaskHandler) List(c *gin.Context) {
 	status := c.Query("status")
 	assignee := c.Query("assignee")
-	
+
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 
@@ -78,7 +78,7 @@ func (h *TaskHandler) List(c *gin.Context) {
 func (h *TaskHandler) Update(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "فرمت شناسه ارسالی نامعتبر است"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
 
@@ -101,7 +101,7 @@ func (h *TaskHandler) Update(c *gin.Context) {
 	}
 
 	if err := h.service.UpdateTask(c.Request.Context(), task); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "تسک یافت نشد یا عملیات با خطا مواجه شد"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "task not found or update failed"})
 		return
 	}
 
@@ -111,14 +111,14 @@ func (h *TaskHandler) Update(c *gin.Context) {
 func (h *TaskHandler) Delete(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "فرمت شناسه ارسالی نامعتبر است"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
 		return
 	}
 
 	if err := h.service.DeleteTask(c.Request.Context(), id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "تسک یافت نشد"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "تسک با موفقیت از سیستم حذف گردید"})
+	c.JSON(http.StatusOK, gin.H{"message": "task deleted successfully"})
 }

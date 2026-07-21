@@ -9,7 +9,7 @@ import (
 
 var TasksCountGauge = prometheus.NewGauge(prometheus.GaugeOpts{
 	Name: "tasks_count",
-	Help: "تعداد کل تسک‌های فعال موجود در سیستم بک‌اند",
+	Help: "Current number of tasks in the system",
 })
 
 type TaskService struct {
