@@ -1,0 +1,20 @@
+{"time":"2026-07-21T06:23:48.735550448+03:30","level":"INFO","msg":"Starting server","address":":8080"}
+{"time":"2026-07-21T06:23:48.735897634+03:30","level":"ERROR","msg":"Server failed to start","error":"listen tcp :8080: bind: address already in use"}
+{"time":"2026-07-21T06:25:41.093290079+03:30","level":"INFO","msg":"Starting server","address":":8080"}
+{"time":"2026-07-21T06:25:41.09361404+03:30","level":"ERROR","msg":"Server failed to start","error":"listen tcp :8080: bind: address already in use"}
+{"time":"2026-07-21T06:26:10.265524592+03:30","level":"INFO","msg":"Starting server","address":":8080"}
+{"time":"2026-07-21T06:26:10.265874475+03:30","level":"ERROR","msg":"Server failed to start","error":"listen tcp :8080: bind: address already in use"}
+{"time":"2026-07-21T06:26:30.376781478+03:30","level":"INFO","msg":"Starting server","address":":8080"}
+{"time":"2026-07-21T06:26:30.377098155+03:30","level":"ERROR","msg":"Server failed to start","error":"listen tcp :8080: bind: address already in use"}
+{"time":"2026-07-21T06:27:48.822418285+03:30","level":"INFO","msg":"Starting Task Manager Service..."}
+{"time":"2026-07-21T06:27:48.829861116+03:30","level":"INFO","msg":"Starting server","address":":8080"}
+{"time":"2026-07-21T06:27:48.830138778+03:30","level":"ERROR","msg":"Server failed to start","error":"listen tcp :8080: bind: address already in use"}
+{"time":"2026-07-21T06:28:38.386429385+03:30","level":"INFO","msg":"Starting Task Manager Service..."}
+{"time":"2026-07-21T06:28:38.387091839+03:30","level":"INFO","msg":"try to access database failed, retrying in 2 seconds..."}
+{"time":"2026-07-21T06:28:40.387862624+03:30","level":"INFO","msg":"try to access database failed, retrying in 2 seconds..."}
+{"time":"2026-07-21T06:28:42.389226205+03:30","level":"INFO","msg":"try to access database failed, retrying in 2 seconds..."}
+{"time":"2026-07-21T06:28:44.390226234+03:30","level":"INFO","msg":"try to access database failed, retrying in 2 seconds..."}
+{"time":"2026-07-21T06:28:46.394731675+03:30","level":"INFO","msg":"try to access database failed, retrying in 2 seconds..."}
+{"time":"2026-07-21T06:28:48.395962887+03:30","level":"ERROR","msg":"Failed to connect to PostgreSQL","error":"dial tcp 127.0.0.1:5432: connect: connection refused"}
+{"time":"2026-07-21T06:32:33.147365831+03:30","level":"INFO","msg":"Starting server","address":":8080"}
+{"time":"2026-07-21T06:32:33.147664381+03:30","level":"ERROR","msg":"Server failed to start","error":"listen tcp :8080: bind: address already in use"}

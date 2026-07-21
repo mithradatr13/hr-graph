@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 type Config struct {
 	ServerPort string
@@ -13,6 +16,7 @@ type Config struct {
 }
 
 func Load() *Config {
+	fmt.Println("Loading configuration...")
 	return &Config{
 		ServerPort: getEnv("SERVER_PORT", "8080"),
 		DBHost:     getEnv("DB_HOST", "localhost"),

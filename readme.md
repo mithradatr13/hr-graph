@@ -80,9 +80,5 @@ Once the application is running, interactive API documentation is automatically 
 
 ## 📊 Monitoring & Profiling
 
-* **Prometheus Metrics:** Available for scraping at `http://localhost:8080/metrics`
+* **Prometheus Metrics:** Available for scraping at `http://localhost:9090/metrics`
 * **Profiling (pprof):** Available at `http://localhost:8080/debug/pprof/` for performance analysis and load testing diagnostics.
-
-```
-
-```

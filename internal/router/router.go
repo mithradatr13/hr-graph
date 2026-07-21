@@ -13,33 +13,33 @@ import (
 func SetupRouter(taskHandler *handler.TaskHandler) *gin.Engine {
 	r := gin.Default()
 
-	// Attach Prometheus monitoring and live tracing middleware
+	// اتصال میدلور مانیتورینگ پرومتئوس و ترسینگ لایو
 	r.Use(middleware.MetricsMiddleware())
 
-	// Serve online Swagger UI documentation alongside the OpenAPI spec file
+	// سرویس مستندات آنلاین Swagger UI به همراه فایل OpenAPI
 	r.StaticFile("/docs/openapi.yaml", "./docs/openapi.yaml")
 	r.GET("/docs", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css">
-                <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
-            </head>
-            <body>
-                <div id="swagger-ui"></div>
-                <script>
-                    SwaggerUIBundle({ url: '/docs/openapi.yaml', dom_id: '#swagger-ui' });
-                </script>
-            </body>
-            </html>
-        `))
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css">
+				<script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+			</head>
+			<body>
+				<div id="swagger-ui"></div>
+				<script>
+					SwaggerUIBundle({ url: '/docs/openapi.yaml', dom_id: '#swagger-ui' });
+				</script>
+			</body>
+			</html>
+		`))
 	})
 
-	// System metrics endpoint for Prometheus scraping
+	// اندپوینت متریک‌های سیستم برای ابزار Prometheus
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
-	// Register Profiling system (pprof) for performance analysis and load testing benchmarks
+	// ثبت سیستم Profiling (pprof) جهت تحلیل پرفورمنس و بنچمارک لود تست
 	pprofGroup := r.Group("/debug/pprof")
 	{
 		pprofGroup.GET("/", gin.WrapH(http.HandlerFunc(pprof.Index)))
@@ -49,18 +49,14 @@ func SetupRouter(taskHandler *handler.TaskHandler) *gin.Engine {
 		pprofGroup.GET("/trace", gin.WrapH(http.HandlerFunc(pprof.Trace)))
 	}
 
-	// API v1 group and task resource routes
-	v1 := r.Group("/api/v1")
-	{
-		tasks := v1.Group("/tasks")
-		{
-			tasks.POST("", taskHandler.Create)
-			tasks.GET("", taskHandler.List)
-			tasks.GET("/:id", taskHandler.GetByID)
-			tasks.PUT("/:id", taskHandler.Update)
-			tasks.DELETE("/:id", taskHandler.Delete)
-		}
-	}
+	// v1 := r.Group("/api/v1/tasks")
+	// {
+	r.POST("/api/v1/tasks", taskHandler.Create)
+	r.GET("/api/v1/tasks", taskHandler.List)
+	r.GET("/api/v1/tasks/:id", taskHandler.GetByID)
+	r.PUT("/api/v1/tasks/:id", taskHandler.Update)
+	r.DELETE("/api/v1/tasks/:id", taskHandler.Delete)
+	// }
 
 	return r
 }
